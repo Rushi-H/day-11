@@ -1,27 +1,43 @@
-import { Suspense, useState } from "react";
-import React from "react";
+import React, { Suspense, useState } from "react";
+import Loader from "./Loader";
 
-// Lazy loading the component
-const SecretMessage = React.lazy(() => import("./SecretMessage"));
+// simulate network/file delay by wrapping import in a Promise with setTimeout
+const SecretMessage = React.lazy(() =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve(import("./SecretMessage")), 1500)
+  )
+);
 
-function App() {
+export default function App() {
   const [show, setShow] = useState(false);
 
   return (
-    <>
-      <h1>Magic Message Loader ✨</h1>
+    <div className="app">
+      <h1 className="title">Magic Message Loader ✨</h1>
+      <p className="subtitle">Click the button to load the secret component.</p>
 
-      <button onClick={() => setShow(true)}>
-        Show Secret Message
-      </button>
+      <div className="controls">
+        <button
+          className="btn"
+          onClick={() => setShow((s) => !s)}
+        >
+          {show ? "Hide Secret" : "Show Secret Message"}
+        </button>
+      </div>
 
-      {show && (
-        <Suspense fallback={<h3>⏳ Please wait...</h3>}>
-          <SecretMessage />
-        </Suspense>
-      )}
-    </>
+      <div className="panel">
+        {show ? (
+          <Suspense fallback={<Loader text="⏳ Please wait — magic is coming!" />}>
+            <SecretMessage />
+          </Suspense>
+        ) : (
+          <div className="placeholder">Nothing to show — click the button!</div>
+        )}
+      </div>
+
+      <footer className="footer">
+        <small>Built with love — React Suspense demo ❤️</small>
+      </footer>
+    </div>
   );
 }
-
-export default App;
